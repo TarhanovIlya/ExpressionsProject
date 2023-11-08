@@ -1,3 +1,7 @@
+import com.fathzer.soft.javaluator.DoubleEvaluator;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -6,27 +10,19 @@ import java.util.regex.Pattern;
 public class Main {
     public static void main(String[] args) {
 
-        String str ="one equals (3-2)*1 or (6-3)/3+1-1  or 4-3";
-
+        String str="expression 1-3+5 and (8*5)/4+2 (9-5)*2";
+        DoubleEvaluator evaluator = new DoubleEvaluator();
         ExpressionExtractor extractor = new ExpressionExtractor(str);
+        List<String> strings = new ArrayList<>();
 
-        System.out.println(str.substring(extractor.GetStart(),extractor.GetEnd()));
-        if(!extractor.GoToNext()){
-            System.out.println("No next");
+        do {
+           strings.add(str.substring(extractor.GetStart(),extractor.GetEnd()).trim());
+        }while(extractor.GoToNext());
+
+        for (String s:strings) {
+            Double res = evaluator.evaluate(s);
+            System.out.println(res);
         }
-
-        System.out.println(str.substring(extractor.GetStart(),extractor.GetEnd()));
-        if(!extractor.GoToNext()){
-            System.out.println("No next");
-        }
-
-        System.out.println(str.substring(extractor.GetStart(),extractor.GetEnd()));
-        if(!extractor.GoToNext()){
-            System.out.println("No next");
-        }
-
-
-
 
     }
 }
