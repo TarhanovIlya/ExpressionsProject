@@ -5,16 +5,22 @@ import java.util.regex.Pattern;
 public class ExpressionExtractor {
 
     // returns index of " " before first digit and index of " " after last. May need trim
-    private Pattern pattern = Pattern.compile("(\\s||^)\\(*\\d+(\\.\\d+)?([+\\-*()/\\d])*(\\s||$)");
-    private Matcher matcher;
+    //  (\s||^)\(*\d+(\.\d+)?([+\-*()/\d])*(\s||$) -backup regex.
 
+    //TODO create regex that can handle double type equations
+    private Pattern pattern = Pattern.compile("(\\s||^)\\(*(\\d+(\\.\\d+)?([+\\-*()\\/\\d])*)+\\)*(\\s||$)");
+    private Matcher matcher;
+    String string;
 
 
      ExpressionExtractor(String str){
-        matcher = pattern.matcher(str);
-        if(!matcher.find(0)){
+         string = str;
+         matcher = pattern.matcher(str);
+
+
+         if(!matcher.find(0)){
             throw new RuntimeException("String parsed to ExpressionExtractor contains no expressions");
-        }
+         }
     }
 
     //will throw exception if no next math equation is found
@@ -29,6 +35,11 @@ public class ExpressionExtractor {
 
     public boolean GoToNext(){
         return matcher.find(matcher.end());
+    }
+
+    public String GetEquation(){
+         return string.substring(this.GetStart(),this.GetEnd()).trim();
+
     }
 
 

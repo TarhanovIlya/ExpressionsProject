@@ -30,6 +30,17 @@ class ExpressionExtractorTest {
     }
 
     @Test
+    public void GetEquationTest(){
+        String str="expressions (4-2)*5 and 2*6-1";
+        ExpressionExtractor extractor = new ExpressionExtractor(str);
+
+        assertEquals("(4-2)*5",extractor.GetEquation());
+
+        extractor.GoToNext();
+        assertEquals("2*6-1",extractor.GetEquation());
+    }
+
+    @Test
     public void StringWithNoExpression(){
         String string = "";
         Exception exception = assertThrows(RuntimeException.class,()->{ExpressionExtractor extractor = new ExpressionExtractor(string);
@@ -46,6 +57,7 @@ class ExpressionExtractorTest {
 
 
     }
+
 
 //    @Test
 //    public void DoubleExtractionTest(){
