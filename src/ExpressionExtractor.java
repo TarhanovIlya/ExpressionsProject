@@ -8,20 +8,28 @@ public class ExpressionExtractor {
     //  (\s||^)\(*\d+(\.\d+)?([+\-*()/\d])*(\s||$) -backup regex.
 
     //TODO create regex that can handle double type equations
-    private Pattern pattern = Pattern.compile("(\\s||^)\\(*(\\d+(\\.\\d+)?([+\\-*()\\/\\d])*)+\\)*(\\s||$)");
+    private Pattern pattern = Pattern.compile("( ||^)\\(*(\\d+(\\.\\d+)?([+\\-*()\\/\\d])*)+\\)*( )(\\s||$)");
     private Matcher matcher;
-    String string;
+    private String string;
+    private boolean isValid = false;
 
 
-     ExpressionExtractor(String str){
+    public boolean isValid() {
+        return isValid;
+    }
+
+    ExpressionExtractor(String str){
          string = str;
          matcher = pattern.matcher(str);
 
+        if(!matcher.find(0)) {
+            isValid = false;
+        }
+        else{
+            isValid = true;
+        }
 
-         if(!matcher.find(0)){
-            throw new RuntimeException("String parsed to ExpressionExtractor contains no expressions");
-         }
-    }
+     }
 
     //will throw exception if no next math equation is found
     public int GetStart(){

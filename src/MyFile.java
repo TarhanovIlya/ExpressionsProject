@@ -1,13 +1,17 @@
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.zip.*;
 
 interface MyFile {
-    abstract byte[] Read(String fileName) throws IOException;
-    abstract byte[] ConvertFrom(byte[] bytes) throws IOException;
-    abstract byte[] ConvertInto(byte[] bytes) throws IOException;
-    abstract byte[] GetBytes(byte[] bytes) throws IOException;
-    abstract void Write(String FileName,byte[] bytes) throws IOException;
+    abstract void ConvertFrom(String fileName) throws IOException;
+    abstract void ConvertInto(String fileName) throws IOException;
+
 }
 
 
@@ -21,83 +25,55 @@ class MyZipFile implements MyFile{
 
 
     @Override
-    //  only reads first entry of zipFile, so it won't Read others. Don't use
-    //  on archives with multiple files
-    public byte[] Read(String fileName) throws IOException {
-
-        ZipFile a = new ZipFile(fileName);
-
-        Enumeration<?extends ZipEntry> enumeration = a.entries();
-        ZipEntry entry =enumeration.nextElement();
-        InputStream inputStream = a.getInputStream(entry);
+    public void ConvertFrom(String fileName) throws IOException {
 
 
-        return inputStream.readAllBytes();
+            byte[] buffer = new byte[1024];
+            File zipFile = new File(fileName);
+            ZipInputStream zis = new ZipInputStream(new FileInputStream(zipFile));
+            ZipEntry zipEntry = zis.getNextEntry();
+            while (zipEntry != null) {
 
+                FileOutputStream fos = new FileOutputStream(zipEntry.getName());
+                int len;
+                while((len = zis.read(buffer))>0){
+                    fos.write(buffer,0,len);
+                }
+                fos.close();
+                zipEntry = zis.getNextEntry();
+            }
+
+            zis.closeEntry();
+            zis.close();
+
+            //dont leave garbage files
+            zipFile.delete();
     }
 
     @Override
-    public byte[] ConvertFrom(byte[] bytes) throws IOException {
-        ZipInputStream zipIn = new ZipInputStream(new ByteArrayInputStream(bytes));
-        ZipEntry entry = zipIn.getNextEntry();
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        byte[] buffer = new byte[1024];
-        int len;
+    public void ConvertInto(String fileName) throws IOException {
 
-        ZipOutputStream zipOutputStream = new ZipOutputStream(out);
+        FileOutputStream fos = new FileOutputStream(fileName+".zip");
+        ZipOutputStream zipOut = new ZipOutputStream(fos);
 
-        zipOutputStream.putNextEntry(entry);
+        File fileToZip = new File(fileName);
+        FileInputStream fis = new FileInputStream(fileToZip);
+        ZipEntry zipEntry = new ZipEntry(fileToZip.getName());
+        zipOut.putNextEntry(zipEntry);
 
-        while ((len = zipIn.read(buffer)) > 0) {
-            out.write(buffer, 0, len);
-        }
-        out.close();
-        zipOutputStream.close();
-        return out.toByteArray();
-    }
-
-    @Override
-    public byte[] ConvertInto(byte[] bytes) throws IOException {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        ZipOutputStream zipOut = new ZipOutputStream(out);
-        ZipEntry entry = new ZipEntry("data");
-        zipOut.putNextEntry(entry);
-        zipOut.write(bytes);
-        zipOut.closeEntry();
-        zipOut.close();
-
-        myBytes =out.toByteArray();
-
-        return myBytes;
-    }
-
-    @Override
-    public byte[] GetBytes(byte[] bytes) throws IOException {
-        return new byte[0];
-    }
-
-    //will create .zip file with one entry. Both .zip file and entry have a name defined by parameter "FileName"
-    //TODO add some unit tests
-    @Override
-    public void Write(String FileName, byte[] bytes) throws IOException {
-
-        ZipOutputStream zipOut = new ZipOutputStream(new FileOutputStream(FileName));
-
-        // создаем новую запись в архиве
-        ZipEntry entry = new ZipEntry(FileName);
-        zipOut.putNextEntry(entry);
-
-        // записываем данные из массива байтов в архив
-        ByteArrayInputStream in = new ByteArrayInputStream(bytes);
-        byte[] buffer = new byte[1024];
-        int len;
-        while ((len = in.read(buffer)) > 0) {
-            zipOut.write(buffer, 0, len);
+        byte[] bytes = new byte[1024];
+        int length;
+        while((length = fis.read(bytes)) >= 0) {
+            zipOut.write(bytes, 0, length);
         }
 
-        // закрываем текущую запись и поток вывода архива
-        zipOut.closeEntry();
         zipOut.close();
+        fis.close();
+        fos.close();
+
+
+
+        fileToZip.delete();
     }
 
 }
@@ -106,43 +82,76 @@ class MyZipFile implements MyFile{
 
 
 
-
-class MyTXTFile implements MyFile{
-
-    byte[] myBytes = new byte[1024];
+class MyJSONFile implements  MyFile{
 
 
     @Override
-    public byte[] Read(String fileName) throws IOException {
+    public void ConvertFrom(String fileName) throws IOException {
 
-        InputStream inputStream = new FileInputStream(fileName);
+        ObjectMapper mapper = new ObjectMapper();
 
-        return inputStream.readAllBytes();
+
+        List<MyJsonElement> myJsonElementList = new ArrayList<>();
+        myJsonElementList = mapper.readValue(new File(fileName), new TypeReference<List<MyJsonElement>>(){});
+
+
+
+        String newFileContent = "";
+        for (int i=0;i<myJsonElementList.size();i++){
+            newFileContent += myJsonElementList.get(i).getContents();
+        }
+
+        String newFileName = fileName.substring(0,fileName.lastIndexOf('.'));
+
+        FileOutputStream outputStream = new FileOutputStream(new File(newFileName));
+        outputStream.write(newFileContent.getBytes(StandardCharsets.UTF_8));
+
+
 
     }
 
+
+    //TODO add deletion of file after conversion
     @Override
-    public byte[] ConvertFrom(byte[] bytes) throws IOException {
-        return new byte[0];
-    }
+    public void ConvertInto(String fileName) throws IOException {
 
-    @Override
-    public byte[] ConvertInto(byte[] bytes) throws IOException {
+        FileInputStream inputStream = new FileInputStream(fileName);
 
-        byte[] myBytes = new byte[1024];
-        return myBytes;
-    }
-
-    @Override
-    public byte[] GetBytes(byte[] bytes) throws IOException {
-        return myBytes;
-    }
+        String fileContents = new String(inputStream.readAllBytes());
 
 
-    @Override
-    public void Write(String FileName, byte[] bytes) throws IOException {
-        FileOutputStream fileOutputStream = new FileOutputStream(FileName);
 
-        fileOutputStream.write(bytes);
+
+
+
+        ExpressionExtractor extractor = new ExpressionExtractor(fileContents);
+
+        List<MyJsonElement> myJsonElementList = new ArrayList<>();
+
+        if(extractor.isValid()){
+            int index_first =0;
+            do {
+                    String text = fileContents.substring(index_first,extractor.GetStart());
+                    String equation = fileContents.substring(extractor.GetStart(),extractor.GetEnd());
+
+                    myJsonElementList.add(new MyJsonElement(text));
+                    myJsonElementList.add(new MyJsonElement(equation));
+
+                    index_first=extractor.GetEnd();
+            }while(extractor.GoToNext());
+            myJsonElementList.add((new MyJsonElement(fileContents.substring(index_first,fileContents.length()))));
+        }
+        else{
+            myJsonElementList.add(new MyJsonElement(fileContents));
+        }
+
+
+
+
+
+        ObjectMapper mapper = new ObjectMapper();
+
+        mapper.writeValue(new File(fileName+".json"),myJsonElementList);
+
     }
 }

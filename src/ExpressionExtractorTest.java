@@ -7,7 +7,7 @@ class ExpressionExtractorTest {
 
     @Test
     public void GetStartTest(){
-        String str="expressions (4-2)*5 and 2*6-1";
+        String str="expressions (4-2)*5 and 2*6-1 ";
 
         ExpressionExtractor extractor = new ExpressionExtractor(str);
 
@@ -19,19 +19,19 @@ class ExpressionExtractorTest {
 
     @Test
     public void GetEndTest(){
-        String str="expressions (4-2)*5 and 2*6-1";
+        String str="expressions (4-2)*5 and 2*6-1 ";
 
         ExpressionExtractor extractor = new ExpressionExtractor(str);
 
         assertEquals(20,extractor.GetEnd());
 
         extractor.GoToNext();
-        assertEquals(29,extractor.GetEnd());
+        assertEquals(30,extractor.GetEnd());
     }
 
     @Test
     public void GetEquationTest(){
-        String str="expressions (4-2)*5 and 2*6-1";
+        String str="expressions (4-2)*5 and 2*6-1 ";
         ExpressionExtractor extractor = new ExpressionExtractor(str);
 
         assertEquals("(4-2)*5",extractor.GetEquation());
@@ -59,17 +59,17 @@ class ExpressionExtractorTest {
     }
 
 
-//    @Test
-//    public void DoubleExtractionTest(){
-//        String str="expressions 1.3+3.7/5.4 and 7.2*6-1.1";
-//
-//        ExpressionExtractor extractor = new ExpressionExtractor(str);
-//
-//        assertEquals("1.3+3.7/5.4",str.substring(extractor.GetStart(),extractor.GetEnd()).trim());
-//
-//        extractor.GoToNext();
-//        assertEquals("7.2*6-1.1",str.substring(extractor.GetStart(),extractor.GetEnd()).trim());
-//    }
+    @Test
+    public void DoubleExtractionTest(){
+        String str="expressions 1.3+3.7/5.4 and 7.2*6-1.1 ";
+
+        ExpressionExtractor extractor = new ExpressionExtractor(str);
+
+        assertEquals("1.3+3.7/5.4",str.substring(extractor.GetStart(),extractor.GetEnd()).trim());
+
+        extractor.GoToNext();
+        assertEquals("7.2*6-1.1",str.substring(extractor.GetStart(),extractor.GetEnd()).trim());
+    }
 
     @Test
     public void SimpleExtractionTest(){
