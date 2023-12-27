@@ -1,16 +1,16 @@
+
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.List;
 import java.util.zip.*;
 
 interface MyFile {
-    abstract void ConvertFrom(String fileName) throws IOException;
-    abstract void ConvertInto(String fileName) throws IOException;
+    abstract String ConvertFrom(String fileName) throws IOException;
+    abstract String ConvertInto(String fileName) throws IOException;
 
 }
 
@@ -21,11 +21,10 @@ interface MyFile {
 
 class MyZipFile implements MyFile{
 
-    byte[] myBytes = new byte[1024];
 
 
     @Override
-    public void ConvertFrom(String fileName) throws IOException {
+    public String ConvertFrom(String fileName) throws IOException {
 
 
             byte[] buffer = new byte[1024];
@@ -48,12 +47,16 @@ class MyZipFile implements MyFile{
 
             //dont leave garbage files
             zipFile.delete();
+
+            return fileName.substring(0,fileName.lastIndexOf('.'));
     }
 
     @Override
-    public void ConvertInto(String fileName) throws IOException {
+    public String ConvertInto(String fileName) throws IOException {
 
-        FileOutputStream fos = new FileOutputStream(fileName+".zip");
+        String newFileName=fileName+".zip";
+
+        FileOutputStream fos = new FileOutputStream(newFileName);
         ZipOutputStream zipOut = new ZipOutputStream(fos);
 
         File fileToZip = new File(fileName);
@@ -74,7 +77,10 @@ class MyZipFile implements MyFile{
 
 
         fileToZip.delete();
+
+        return newFileName;
     }
+
 
 }
 
@@ -86,19 +92,20 @@ class MyJSONFile implements  MyFile{
 
 
     @Override
-    public void ConvertFrom(String fileName) throws IOException {
+    public String ConvertFrom(String fileName) throws IOException {
 
         ObjectMapper mapper = new ObjectMapper();
 
 
-        List<MyJsonElement> myJsonElementList = new ArrayList<>();
-        myJsonElementList = mapper.readValue(new File(fileName), new TypeReference<List<MyJsonElement>>(){});
+        List<My_Json_XML_Element> myJsonXMLElementList = new ArrayList<>();
+        File fileToUnJson =new File(fileName);
+        myJsonXMLElementList = mapper.readValue(fileToUnJson, new TypeReference<List<My_Json_XML_Element>>(){});
 
 
 
         String newFileContent = "";
-        for (int i=0;i<myJsonElementList.size();i++){
-            newFileContent += myJsonElementList.get(i).getContents();
+        for (int i = 0; i< myJsonXMLElementList.size(); i++){
+            newFileContent += myJsonXMLElementList.get(i).getContents();
         }
 
         String newFileName = fileName.substring(0,fileName.lastIndexOf('.'));
@@ -107,15 +114,18 @@ class MyJSONFile implements  MyFile{
         outputStream.write(newFileContent.getBytes(StandardCharsets.UTF_8));
 
 
+        fileToUnJson.delete();
 
+        return newFileName;
     }
 
 
     //TODO add deletion of file after conversion
     @Override
-    public void ConvertInto(String fileName) throws IOException {
+    public String ConvertInto(String fileName) throws IOException {
 
-        FileInputStream inputStream = new FileInputStream(fileName);
+        File fileToJson = new File(fileName);
+        FileInputStream inputStream = new FileInputStream(fileToJson);
 
         String fileContents = new String(inputStream.readAllBytes());
 
@@ -126,7 +136,7 @@ class MyJSONFile implements  MyFile{
 
         ExpressionExtractor extractor = new ExpressionExtractor(fileContents);
 
-        List<MyJsonElement> myJsonElementList = new ArrayList<>();
+        List<My_Json_XML_Element> myJsonXMLElementList = new ArrayList<>();
 
         if(extractor.isValid()){
             int index_first =0;
@@ -134,15 +144,24 @@ class MyJSONFile implements  MyFile{
                     String text = fileContents.substring(index_first,extractor.GetStart());
                     String equation = fileContents.substring(extractor.GetStart(),extractor.GetEnd());
 
-                    myJsonElementList.add(new MyJsonElement(text));
-                    myJsonElementList.add(new MyJsonElement(equation));
+                    My_Json_XML_Element a = new My_Json_XML_Element(text);
+                    a.type = "text";
+                    myJsonXMLElementList.add(a);
+                    My_Json_XML_Element b = new My_Json_XML_Element(equation);
+                    b.type = "equation";
+                    myJsonXMLElementList.add(b);
 
                     index_first=extractor.GetEnd();
             }while(extractor.GoToNext());
-            myJsonElementList.add((new MyJsonElement(fileContents.substring(index_first,fileContents.length()))));
+            My_Json_XML_Element temp = new My_Json_XML_Element(fileContents.substring(index_first,fileContents.length()));
+            temp.type = "text";
+            myJsonXMLElementList.add(temp);
         }
         else{
-            myJsonElementList.add(new MyJsonElement(fileContents));
+            My_Json_XML_Element a =new My_Json_XML_Element(fileContents);
+            a.type="content";
+            myJsonXMLElementList.add(a);
+
         }
 
 
@@ -151,7 +170,30 @@ class MyJSONFile implements  MyFile{
 
         ObjectMapper mapper = new ObjectMapper();
 
-        mapper.writeValue(new File(fileName+".json"),myJsonElementList);
+        mapper.writeValue(new File(fileName+".json"), myJsonXMLElementList);
 
+        fileToJson.delete();
+        return  fileName+".json";
+    }
+}
+
+
+
+
+class MyXMLFile implements  MyFile{
+
+    @Override
+    public String ConvertFrom(String fileName) throws IOException {
+        return null;
+
+    }
+
+    @Override
+    public String ConvertInto(String fileName) throws IOException {
+        File fileToXML = new File(fileName);
+        FileInputStream inputStream = new FileInputStream(fileToXML);
+
+
+        return null;
     }
 }
