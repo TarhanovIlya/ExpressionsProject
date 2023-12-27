@@ -1,4 +1,6 @@
 
+import  javax.xml.bind.JAXB;
+import javax.xml.bind.JAXBException;
 import java.io.*;
 import java.util.*;
 
@@ -28,7 +30,7 @@ public class Main {
     }
 
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, JAXBException {
 //
 //        String helpData = "\n####################\nh - display help data\nd - show queue\nx - cancel last command\nz - zip\nj - json\n1 - convert from\n2 - convert into\ns - start conversion\nq - end work\n####################\n";
 //        System.out.println(helpData);
@@ -119,7 +121,7 @@ public class Main {
 //
 
         FileConverter converter = new FileConverter("testFile.txt");
-        converter.ConvertInto(new MyJSONFile());
+        converter.ConvertInto(new MyXMLFile());
     }
 
     static void startConversion(){

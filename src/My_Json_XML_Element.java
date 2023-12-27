@@ -1,3 +1,8 @@
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+
+@XmlRootElement
 public class My_Json_XML_Element {
     String contents;
 
@@ -19,8 +24,10 @@ public class My_Json_XML_Element {
         contents=null;
     }
 
+    @XmlAttribute
     public String getType() {
         return type;
+
     }
 
     public void setType(String type) {

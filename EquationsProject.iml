@@ -104,7 +104,7 @@
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../jackson-dataformat-xml-2.15.2.jar!/" />
+          <root url="jar://$MODULE_DIR$/../../jaxb-api-2.3.0.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -113,7 +113,7 @@
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../stax-1.2.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/../../activation-1.1.1.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -122,7 +122,7 @@
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../jackson-dataformat-xml-2.11.1.jar!/" />
+          <root url="jar://$MODULE_DIR$/../../istack-commons-runtime-3.0.10.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -131,7 +131,16 @@
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../jakarta.xml.bind-api-4.0.1.jar!/" />
+          <root url="jar://$MODULE_DIR$/../../jaxb-api-2.3.1.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" exported="">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../../jaxb-runtime-2.3.3.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />

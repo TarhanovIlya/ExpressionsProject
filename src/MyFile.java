@@ -2,6 +2,9 @@
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -10,7 +13,7 @@ import java.util.zip.*;
 
 interface MyFile {
     abstract String ConvertFrom(String fileName) throws IOException;
-    abstract String ConvertInto(String fileName) throws IOException;
+    abstract String ConvertInto(String fileName) throws IOException, JAXBException;
 
 }
 
@@ -189,11 +192,57 @@ class MyXMLFile implements  MyFile{
     }
 
     @Override
-    public String ConvertInto(String fileName) throws IOException {
-        File fileToXML = new File(fileName);
-        FileInputStream inputStream = new FileInputStream(fileToXML);
+    public String ConvertInto(String fileName) throws IOException, JAXBException {
+        File fileToXMl = new File(fileName);
+        FileInputStream inputStream = new FileInputStream(fileToXMl);
+
+        String fileContents = new String(inputStream.readAllBytes());
 
 
-        return null;
+
+
+
+
+        ExpressionExtractor extractor = new ExpressionExtractor(fileContents);
+
+        List<My_Json_XML_Element> myXMLElementList = new ArrayList<>();
+
+        if(extractor.isValid()){
+            int index_first =0;
+            do {
+                String text = fileContents.substring(index_first,extractor.GetStart());
+                String equation = fileContents.substring(extractor.GetStart(),extractor.GetEnd());
+
+                My_Json_XML_Element a = new My_Json_XML_Element(text);
+                a.type = "text";
+                myXMLElementList.add(a);
+                My_Json_XML_Element b = new My_Json_XML_Element(equation);
+                b.type = "equation";
+                myXMLElementList.add(b);
+
+                index_first=extractor.GetEnd();
+            }while(extractor.GoToNext());
+            My_Json_XML_Element temp = new My_Json_XML_Element(fileContents.substring(index_first,fileContents.length()));
+            temp.type = "text";
+            myXMLElementList.add(temp);
+        }
+        else{
+            My_Json_XML_Element a =new My_Json_XML_Element(fileContents);
+            a.type="content";
+            myXMLElementList.add(a);
+
+        }
+
+        JAXBContext context = JAXBContext.newInstance(MyXML_JSON_EL_list.class);
+        Marshaller marshaller = context.createMarshaller();
+
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+        marshaller.marshal(new MyXML_JSON_EL_list(myXMLElementList),new File(fileName+".xml"));
+
+
+
+
+        //fileToXMl.delete();
+        return  fileName+".xml";
     }
 }
