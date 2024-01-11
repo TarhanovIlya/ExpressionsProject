@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -12,7 +13,7 @@ import java.util.List;
 import java.util.zip.*;
 
 interface MyFile {
-    abstract String ConvertFrom(String fileName) throws IOException;
+    abstract String ConvertFrom(String fileName) throws IOException, JAXBException;
     abstract String ConvertInto(String fileName) throws IOException, JAXBException;
 
 }
@@ -186,9 +187,34 @@ class MyJSONFile implements  MyFile{
 class MyXMLFile implements  MyFile{
 
     @Override
-    public String ConvertFrom(String fileName) throws IOException {
-        return null;
+    public String ConvertFrom(String fileName) throws IOException, JAXBException {
+        JAXBContext context = JAXBContext.newInstance(MyXML_JSON_EL_list.class);
+        Unmarshaller unmarshaller = context.createUnmarshaller();
 
+        MyXML_JSON_EL_list elList = new MyXML_JSON_EL_list();
+
+        File XMLfile = new File(fileName);
+
+        elList =(MyXML_JSON_EL_list) unmarshaller.unmarshal(XMLfile);
+
+
+
+
+
+        String newFileName = fileName.substring(0,fileName.lastIndexOf('.'));
+
+        String newFileContent = "";
+        for (int i = 0; i< elList.list.size(); i++){
+            newFileContent += elList.list.get(i).getContents();
+        }
+
+        File newFile = new File(newFileName);
+        FileOutputStream fos = new FileOutputStream(newFile);
+        fos.write(newFileContent.getBytes(StandardCharsets.UTF_8));
+
+        XMLfile.delete();
+
+        return  newFileName;
     }
 
     @Override

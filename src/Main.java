@@ -120,8 +120,8 @@ public class Main {
 //
 //
 
-        FileConverter converter = new FileConverter("testFile.txt");
-        converter.ConvertInto(new MyXMLFile());
+        FileConverter converter = new FileConverter("testFile.txt.json.xml");
+        converter.ConvertFrom(new MyXMLFile());
     }
 
     static void startConversion(){
