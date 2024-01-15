@@ -43,17 +43,16 @@ class ExpressionExtractorTest {
     @Test
     public void StringWithNoExpression(){
         String string = "";
-        Exception exception = assertThrows(RuntimeException.class,()->{ExpressionExtractor extractor = new ExpressionExtractor(string);
-        });
+        ExpressionExtractor extractor = new ExpressionExtractor("");
 
-        assertEquals("String parsed to ExpressionExtractor contains no expressions",exception.getMessage());
+        assertEquals(extractor.isValid(),false);
 
 
         String string2 = "no expressions at all";
-        Exception exception2 = assertThrows(RuntimeException.class,()->{ExpressionExtractor extractor2 = new ExpressionExtractor(string2);
-        });
 
-        assertEquals("String parsed to ExpressionExtractor contains no expressions",exception.getMessage());
+        ExpressionExtractor extractor1 = new ExpressionExtractor(string2);
+
+        assertEquals(extractor1.isValid(),false);
 
 
     }

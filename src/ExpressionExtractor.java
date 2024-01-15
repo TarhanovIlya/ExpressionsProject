@@ -4,10 +4,8 @@ import java.util.regex.Pattern;
 
 public class ExpressionExtractor {
 
-    // returns index of " " before first digit and index of " " after last. May need trim
-    //  (\s||^)\(*\d+(\.\d+)?([+\-*()/\d])*(\s||$) -backup regex.
 
-    //TODO create regex that can handle double type equations
+    // expression must not contain spaces between numbers and operators and have space before and after : " 1+2*(3+4/5) "
     private Pattern pattern = Pattern.compile("( ||^)\\(*(\\d+(\\.\\d+)?([+\\-*()\\/\\d])*)+\\)*( )(\\s||$)");
     private Matcher matcher;
     private String string;
