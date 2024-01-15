@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<myXMLJSONELList>
+    <list type="text">
+        <contents>word</contents>
+    </list>
+    <list type="equation">
+        <contents> 1-3*9 </contents>
+    </list>
+    <list type="text">
+        <contents></contents>
+    </list>
+</myXMLJSONELList>

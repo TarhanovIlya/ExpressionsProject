@@ -80,7 +80,7 @@ class MyZipFile implements MyFile{
 
 
 
-        fileToZip.delete();
+       boolean isDeleted = fileToZip.delete();
 
         return newFileName;
     }
@@ -120,6 +120,8 @@ class MyJSONFile implements  MyFile{
 
         fileToUnJson.delete();
 
+
+        outputStream.close();
         return newFileName;
     }
 
@@ -176,7 +178,9 @@ class MyJSONFile implements  MyFile{
 
         mapper.writeValue(new File(fileName+".json"), myJsonXMLElementList);
 
-        fileToJson.delete();
+
+        inputStream.close();
+        boolean isDeleted = fileToJson.delete();
         return  fileName+".json";
     }
 }
@@ -185,6 +189,9 @@ class MyJSONFile implements  MyFile{
 
 
 class MyXMLFile implements  MyFile{
+
+    public static void writeToFile(MyXML_JSON_EL_list elList, File testFile) {
+    }
 
     @Override
     public String ConvertFrom(String fileName) throws IOException, JAXBException {
@@ -212,7 +219,9 @@ class MyXMLFile implements  MyFile{
         FileOutputStream fos = new FileOutputStream(newFile);
         fos.write(newFileContent.getBytes(StandardCharsets.UTF_8));
 
-        XMLfile.delete();
+
+        fos.close();
+        boolean isDeleted = XMLfile.delete();
 
         return  newFileName;
     }
@@ -267,8 +276,8 @@ class MyXMLFile implements  MyFile{
 
 
 
-
-        //fileToXMl.delete();
+        inputStream.close();
+        fileToXMl.delete();
         return  fileName+".xml";
     }
 }

@@ -120,11 +120,14 @@ public class Main {
 //
 //
 
-        FileConverter converter = new FileConverter("testFile.txt.json.xml");
-        converter.ConvertFrom(new MyXMLFile());
+
+        FileConverter fileConverter = new FileConverter("test_xml.txt");
+
+        fileConverter.ConvertInto(new MyXMLFile());
+
+
     }
 
-    static void startConversion(){
+
 
     }
-}
